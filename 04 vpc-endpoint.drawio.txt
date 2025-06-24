@@ -1,0 +1,80 @@
+ADVANCED VPC PROJECT - PUBLIC + PRIVATE SUBNET + NAT + VPC ENDPOINT
+
+Step 1: Create VPC
+
+* Name: custom-vpc
+* IPv4 CIDR block: 172.16.0.0/16
+
+Step 2: Create Subnets
+Public Subnet:
+
+* Name: Public-Subnet-A
+* CIDR block: 172.16.0.0/24
+
+Private Subnet:
+
+* Name: Private-Subnet-B
+* CIDR block: 172.16.1.0/24
+
+Step 3: Create and Attach Internet Gateway
+
+* Name: custom-igw
+* Attach it to your VPC
+
+Step 4: Create Route Tables
+
+Public Route Table:
+
+* Name: public-rt
+* Route: 0.0.0.0/0 -> Internet Gateway
+* Associate with Public Subnet
+
+Private Route Table:
+
+* Name: private-rt
+* Associate with Private Subnet
+* No route to internet yet
+
+Step 5: Launch EC2 Instances
+
+Public EC2:
+
+* Name: pub-ec2
+* Subnet: Public-Subnet-A
+* Public IP: Yes
+* Allow SSH and ICMP in Security Group
+
+Private EC2:
+
+* Name: prt-ec2
+* Subnet: Private-Subnet-B
+* Public IP: No
+* Allow SSH from Public EC2
+
+Step 6: NAT Gateway Setup
+
+* Create NAT Gateway in Public Subnet
+* Attach Elastic IP to it
+* Edit private route table
+* Add route: 0.0.0.0/0 -> NAT Gateway
+
+Step 7: VPC Endpoint for S3
+
+* Go to VPC -> Endpoints
+* Create Endpoint
+* Service: com.amazonaws.region.s3
+* Type: Gateway
+* Select VPC and private route table
+* Policy: Full access or specific bucket access
+
+Step 8: Create IAM Role for EC2 to Access S3
+
+* Create role with AmazonS3ReadOnlyAccess
+* Attach role to Private EC2
+
+Step 9: Validate
+
+* SSH from Public EC2 to Private EC2 using PEM file
+* Run this command in Private EC2:
+  aws s3 ls s3://your-bucket-name
+* You should get the list of objects from S3
